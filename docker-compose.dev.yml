@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  chemical-extraction-backend:
+    image: chemical-extraction-backend
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: dev
+    container_name: dev_chemical_extraction_backend
+    env_file:
+      - ./docker/dev.env
+    volumes:
+      - ./:/chemical-extraction-backend
+      - ./public/wsgi.py:/chemical-extraction-backend/wsgi.py
+    ports:
+      - 5000:5000
+      - 80:80
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    container_name: dev_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongo:/data/db
