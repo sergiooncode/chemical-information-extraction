@@ -11,7 +11,7 @@ from src.infrastructure.persistence.mongoengine.model.patent_document_applicatio
 
 
 class PatentDocument(Document):
-    abstract = StringField(max_length=2000)
+    abstract = StringField(max_length=50000)
     year = IntField()
     title = StringField(max_length=500)
     claims = StringField(max_length=200000)
