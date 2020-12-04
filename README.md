@@ -31,6 +31,7 @@ entities using using the call `pipe` for NER from spaCy and finally stores them 
 - Download chemical-information-extraction.bundle, cd into folder where it is and do
 `git clone chemical-information-extraction.bundle chemical-information-extraction`
 - Start the container `docker-compose -f docker-compose.dev.yml`
+- Load pretrained statistical models for English `docker exec -it dev_chemical_extraction_backend python -m spacy download en_core_web_sm`
 - Load a document in resources folder (part of repository):
     - Using an HTTP client like cUrl or HTTPIE do:
         - cUrl: `curl -vX POST http://localhost/v1/documents -d "text=@resources/US06182714B2.xml" --header "Content-Type: application/json"`
