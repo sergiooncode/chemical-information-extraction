@@ -1,4 +1,5 @@
 from config.persistence_settings import MONGO_DB_NAME
+from config.persistence_settings import MONGO_DB_HOST
 
 PRODUCTION_CONFIG_NAME = "production"
 TEST_CONFIG_NAME = "test"
@@ -22,7 +23,7 @@ class ProductionConfig(Config):
 
 
 class LocalConfig(Config):
-    MONGODB_SETTINGS = {"db": MONGO_DB_NAME, "username": "", "password": ""}
+    MONGODB_SETTINGS = {"db": MONGO_DB_NAME, "username": "", "password": "", "host": MONGO_DB_HOST, "alias": "default"}
     DEBUG = True
     ENV = "local"
 

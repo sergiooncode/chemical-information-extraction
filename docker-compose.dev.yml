@@ -21,8 +21,9 @@ services:
 
   mongo:
     image: mongo:latest
-    container_name: dev_mongo
+    container_name: dev_chemical_extraction_mongo
+    hostname: mongo.docker
     ports:
-      - "27017:27017"
+      - 27017:27017
     volumes:
       - ./data/mongo:/data/db

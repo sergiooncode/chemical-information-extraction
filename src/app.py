@@ -20,6 +20,7 @@ def create_app(config_name=os.getenv("ENVIRONMENT") or DEFAULT_CONFIG_NAME):
         else:
             api.init_app(app, add_specs=False)
 
+        # Mongoengine setup
         db.init_app(app)
 
         # CLI commands

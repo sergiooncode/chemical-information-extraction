@@ -62,5 +62,4 @@ class ActionsContainer(containers.DeclarativeContainer):
 container = AppContainer.get_instance()
 container.bind("get_health_check_api_action", ActionsContainer.health_check_api_action())
 container.bind("get_load_document_api_action", ActionsContainer.document_load_api_action())
-container.bind("get_distribute_document_batches_service",
-               ServicesContainer.distribute_document_batches_service())
+container.bind("get_distribute_document_batches_service", ServicesContainer.distribute_document_batches_service())
