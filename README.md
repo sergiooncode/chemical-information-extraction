@@ -19,10 +19,11 @@ the patent document first and then persists it to db.
 
 - Parallelization
 
-The way the application has to parallelize extraction of entities from documents is by using batching.
+The way the application parallelizes extraction of entities from documents is by using batching.
 In the `DistributeDocumentBatchesAppService` service the database is queried for documents that have the processed field set
 to `False`, then spawns a number of processes(workers) equal to the constant `NUMBER_OF_DOCUMENT_PROCESSING_WORKERS`
-(this constant should be lower than the max number of cores in the machine running the application),
+(this constant should be lower than the max number of cores in the machine running the application and it can be configured
+as an environment variable in `dev.env`),
 then distributes the ids of the documents across the workers, each worker queries the documents of its batch, extracts
 entities using using the call `pipe` for NER from spaCy and finally stores them together with the parsed document.
 
@@ -36,7 +37,7 @@ entities using using the call `pipe` for NER from spaCy and finally stores them 
     - Using an HTTP client like cUrl or HTTPIE do:
         - cUrl: `curl -vX POST http://localhost/v1/documents -d "text=@resources/US06182714B2.xml" --header "Content-Type: application/json"`
         - HTTPIE: `http --verbose http://localhost/v1/documents text=@resources/US06182714B2.xml Content-Type:application/json`
-- Process the loaded documents doing: `docker exec -it dev_chemical_extraction_backend flask documents process-batches`
+- Process the loaded documents in batches doing: `docker exec -it dev_chemical_extraction_backend flask documents process-batches`
 
     
 ## Other useful commands
