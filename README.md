@@ -33,8 +33,8 @@ entities using using the call `pipe` for NER from spaCy and finally stores them 
 - Start the container `docker-compose -f docker-compose.dev.yml`
 - Load a document in resources folder (part of repository):
     - Using an HTTP client like cUrl or HTTPIE do:
-        - cUrl: `curl -vX POST http://localhost:5000/v1/documetns -d "text=@resources/US06182714B2.xml" --header "Content-Type: application/json"`
-        - HTTPIE: `http --verbose http://localhost:5000/v1/documents text=@resources/US06182714B2.xml Content-Type:application/json`
+        - cUrl: `curl -vX POST http://localhost/v1/documents -d "text=@resources/US06182714B2.xml" --header "Content-Type: application/json"`
+        - HTTPIE: `http --verbose http://localhost/v1/documents text=@resources/US06182714B2.xml Content-Type:application/json`
 - Process the loaded documents doing: `docker exec -it dev_chemical_extraction_backend flask documents process-batches`
 
     

@@ -14,8 +14,7 @@ RUN apk update && \
     musl-dev \
     libffi-dev \
     libxml2-dev \
-    libxslt-dev \
-    uwsgi
+    libxslt-dev
 
 RUN pip install poetry
 RUN POETRY_VIRTUALENVS_CREATE=false poetry install --no-dev

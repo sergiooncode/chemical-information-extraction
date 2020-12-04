@@ -13,6 +13,7 @@ lxml = "^4.6.1"
 flask-mongoengine = "^1.0.0"
 spacy = "^2.3.4"
 appdirs = "^1.4.4"
+uwsgi = "^2.0.19"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
