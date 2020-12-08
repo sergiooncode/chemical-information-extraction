@@ -1,13 +1,25 @@
 from datetime import datetime
+from os import listdir
+from os.path import isfile
+from os.path import join
+from pathlib import Path
 
 from flask import Blueprint
 
 from config.di_container import container
-from src.application.service.distribute_document_batches_app_service import DistributeDocumentBatchesAppService
+from src.infrastructure.parsing.lxml_document_abstract_parser import LxmlDocumentAbstractParser
+from src.infrastructure.parsing.lxml_document_claims_parser import LxmlDocumentClaimsParser
+from src.infrastructure.parsing.lxml_document_description_parser import LxmlDocumentDescriptionParser
+from src.infrastructure.parsing.lxml_document_metadata_parser import LxmlDocumentMetadataParser
+from src.infrastructure.parsing.lxml_document_title_parser import LxmlDocumentTitleParser
 from src.infrastructure.persistence.mongoengine.model.patent_document import PatentDocument
 from src.infrastructure.persistence.mongoengine.model.patent_document_application import PatentDocumentApplication
+from src.infrastructure.persistence.mongoengine.repository.mongoengine_document_writer_repository import \
+    MongoengineDocumentWriterRepository
 
 documents_blueprint = Blueprint("documents", __name__)
+
+PATENTS_FOLDER = f"{Path(__file__).parents[2]}/resources"
 
 
 @documents_blueprint.cli.command("persist")
@@ -48,17 +60,6 @@ def persist_document():
     pd.save()
 
 
-@documents_blueprint.cli.command("persist-many")
-def persist_many_documents():
-    from .patents import parse_patent_abstract
-    from .patents import parse_patent_metadata
-    from .patents import parse_patent_full_text
-
-    print(parse_patent_abstract())
-    print(parse_patent_metadata())
-    print(parse_patent_full_text())
-
-
 @documents_blueprint.cli.command("list-all")
 def list_all_documents():
     for o in PatentDocument.objects.all():
@@ -78,3 +79,53 @@ def delete_all_documents():
 def process_batches():
     # DistributeDocumentBatchesAppService()
     container.get("get_distribute_document_batches_service").execute()
+
+
+@documents_blueprint.cli.command("bulk-load")
+def bulk_load():
+    BULK_LOAD_DOCUMENT_NUMBER = 1000
+    document_writer_repository = MongoengineDocumentWriterRepository()
+
+    xml_files = [f for f in listdir(PATENTS_FOLDER) if isfile(join(PATENTS_FOLDER, f))]
+
+    abstract_parser = LxmlDocumentAbstractParser()
+    metadata_parser = LxmlDocumentMetadataParser()
+    title_parser = LxmlDocumentTitleParser()
+    claims_parser = LxmlDocumentClaimsParser()
+    description_parser = LxmlDocumentDescriptionParser()
+
+    patents = []
+    for xml_file_name in xml_files:
+        with open(join(PATENTS_FOLDER, xml_file_name), "r") as fd:
+            text = fd.read()
+            try:
+                abstract = abstract_parser.parse(text)
+                metadata = metadata_parser.parse(text)
+                title = title_parser.parse(text)
+                metadata.title = title
+                claims = claims_parser.parse(text)
+                description = description_parser.parse(text)
+            except Exception as e:
+                import traceback;traceback.print_exc()
+                print(e)
+                continue
+
+            patents.append(dict(
+                abstract=abstract,
+                title=title,
+                year=metadata.year,
+                claims=claims,
+                description=description,
+                application_country=metadata.application_country,
+                application_document_number=metadata.application_document_number,
+                application_kind=metadata.application_kind,
+                application_date=metadata.application_date,
+            ))
+
+        if len(patents) == BULK_LOAD_DOCUMENT_NUMBER:
+            document_writer_repository.bulk_add(patents)
+            patents = []
+            print(f"writing {BULK_LOAD_DOCUMENT_NUMBER} documents")
+
+    print(f"writing {len(patents)} documents")
+    document_writer_repository.bulk_add(patents)

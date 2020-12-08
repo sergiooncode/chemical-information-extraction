@@ -24,6 +24,27 @@ class MongoengineDocumentWriterRepository(DocumentWriterRepository):
             processed=False,
         ).save()
 
+    def bulk_add(self, document_dicts: List[Dict[str, Union[str, int]]]):
+        patent_document_instances = []
+        for d in document_dicts:
+            patent_document_instances.append(
+                PatentDocument(
+                    abstract=d["abstract"],
+                    title=d["title"],
+                    year=d["year"],
+                    claims=d["claims"],
+                    description=d["description"],
+                    application=PatentDocumentApplication(
+                        country=d["application_country"],
+                        doc_number=d["application_document_number"],
+                        kind=d["application_kind"],
+                        date=d["application_date"],
+                    ),
+                    processed=False,
+                )
+            )
+        return PatentDocument.objects.insert(patent_document_instances, load_bulk=False)
+
     def update(self, document_id: str, entities: List[str]):
         pd = PatentDocument.objects.get(id=document_id)
         pd.update(set__entities=entities)
